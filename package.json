@@ -9,6 +9,9 @@
     "compile": "pallad-scripts compile",
     "lint": "pallad-scripts lint"
   },
+  "files": [
+    "compiled"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/pallad-ts/mapper.git"
