@@ -12,6 +12,9 @@
   "files": [
     "compiled"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/pallad-ts/mapper.git"
