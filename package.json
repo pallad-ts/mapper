@@ -7,7 +7,8 @@
   "scripts": {
     "test": "pallad-scripts test",
     "compile": "pallad-scripts compile",
-    "lint": "pallad-scripts lint"
+    "lint": "pallad-scripts lint",
+    "prepublishOnly": "npm run compile"
   },
   "files": [
     "compiled"
