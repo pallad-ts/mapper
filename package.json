@@ -1,0 +1,29 @@
+{
+  "name": "@pallad/mapper",
+  "version": "1.0.0",
+  "description": "Simple object mapper to convert object one of type to another",
+  "main": "compiled/index.js",
+  "types": "compiled/index.d.ts",
+  "scripts": {
+    "test": "pallad-scripts test",
+    "compile": "pallad-scripts compile",
+    "lint": "pallad-scripts lint"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pallad-ts/mapper.git"
+  },
+  "author": "Łukasz Kużyński <lukasz.kuzynski@gmail.com> (http://wookieb.pl)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/pallad-ts/mapper/issues"
+  },
+  "homepage": "https://github.com/pallad-ts/mapper#readme",
+  "devDependencies": {
+    "@pallad/scripts": "^1.1.4",
+    "@types/jest": "^24.9.1",
+    "@types/sinon": "^7.5.2",
+    "sinon": "^7.5.0",
+    "snake-case": "^3.0.3"
+  }
+}
