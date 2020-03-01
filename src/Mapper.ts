@@ -78,8 +78,25 @@ export class Mapper<TLight = any, TDark = any> {
         return this.darkFactory ? this.darkFactory(data) : data;
     }
 
+    mapPartialToDark(light: Partial<TLight>, useFactory: boolean = false): Partial<TDark> {
+        const data: any = {};
+        for (const [lightName, darkName] of this.fieldMap) {
+            if (lightName in light) {
+                data[darkName] = this.transformValueFromLight(lightName, light[lightName]);
+            }
+        }
+        if (useFactory && this.darkFactory) {
+            return this.darkFactory(data);
+        }
+        return data;
+    }
+
     arrayMapToDark(values: TLight[]): TDark[] {
         return values.map(this.mapToDark, this);
+    }
+
+    arrayMapPartialToDark(values: Partial<TLight>[], useFactory: boolean = false): Partial<TDark>[] {
+        return values.map(x => this.mapPartialToDark(x, useFactory));
     }
 
     getDarkNameFromLightName(lightName: keyof TLight): keyof TDark | undefined {
@@ -98,6 +115,19 @@ export class Mapper<TLight = any, TDark = any> {
         return Array.from(this.reverseFieldMap.keys());
     }
 
+    mapPartialToLight(dark: Partial<TDark>, useFactory: boolean = false): Partial<TLight> {
+        const data: any = {};
+        for (const [lightName, darkName] of this.fieldMap) {
+            if (darkName in dark) {
+                data[lightName] = this.transformValueFromDark(darkName, dark[darkName]);
+            }
+        }
+        if (useFactory && this.lightFactory) {
+            return this.lightFactory(data);
+        }
+        return data;
+    }
+
     /**
      * Maps object from dark to light side
      */
@@ -111,6 +141,10 @@ export class Mapper<TLight = any, TDark = any> {
 
     arrayMapToLight(values: TDark[]): TLight[] {
         return values.map(this.mapToLight, this);
+    }
+
+    arrayMapPartialToLight(values: Partial<TDark>[], useFactory: boolean = false): Partial<TLight>[] {
+        return values.map(x => this.mapPartialToLight(x, useFactory));
     }
 
     transformValueFromDark(darkName: keyof TDark, value: any) {

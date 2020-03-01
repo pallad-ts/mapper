@@ -1,5 +1,6 @@
 import {snakeCase} from "snake-case";
 import {Mapper} from "@src/Mapper";
+import * as sinon from 'sinon';
 
 class Example {
     readonly firstName!: string;
@@ -250,6 +251,92 @@ describe('Mapper', () => {
 
                 expect(mapper.transformValueFromLight('foo', 'value'))
                     .toStrictEqual('VALUE');
+            });
+        });
+    });
+
+
+    describe('mapping partial', () => {
+        let mapper: Mapper<Example>;
+
+        let lightFactory: sinon.SinonStub;
+        let darkFactory: sinon.SinonStub;
+
+        const LIGHT = {
+            firstName: 'Tom'
+        };
+
+        const DARK = {
+            first_name: 'Tom'
+        };
+
+        beforeEach(() => {
+            mapper = Mapper.create<Example>()
+                .useLightFactory(lightFactory = sinon.stub().returnsArg(0))
+                .useDarkFactory(darkFactory = sinon.stub().returnsArg(0))
+                .registerMapping('firstName', 'first_name')
+                .registerMapping('lastName', 'last_name');
+        });
+
+        describe('to dark', () => {
+            it('without factory', () => {
+                expect(mapper.mapPartialToDark(LIGHT))
+                    .toStrictEqual(DARK)
+
+                sinon.assert.notCalled(darkFactory);
+            });
+
+            it('with factory', () => {
+                expect(mapper.mapPartialToDark(LIGHT, true))
+                    .toStrictEqual(DARK);
+
+                sinon.assert.calledWith(darkFactory, DARK);
+            });
+
+            it('array without factory', () => {
+                expect(mapper.arrayMapPartialToDark([LIGHT, LIGHT]))
+                    .toStrictEqual([DARK, DARK]);
+
+                sinon.assert.notCalled(darkFactory);
+            });
+
+            it('array with factory', () => {
+                expect(mapper.arrayMapPartialToDark([LIGHT, LIGHT], true))
+                    .toStrictEqual([DARK, DARK]);
+
+                sinon.assert.calledTwice(darkFactory);
+                sinon.assert.alwaysCalledWith(darkFactory, DARK);
+            });
+        });
+
+        describe('to light', () => {
+            it('without factory', () => {
+                expect(mapper.mapPartialToLight(DARK))
+                    .toStrictEqual(LIGHT);
+
+                sinon.assert.notCalled(lightFactory);
+            });
+
+            it('with factory', () => {
+                expect(mapper.mapPartialToLight(DARK, true))
+                    .toStrictEqual(LIGHT);
+
+                sinon.assert.calledWith(lightFactory, LIGHT);
+            });
+
+            it('array without factory', () => {
+                expect(mapper.arrayMapPartialToLight([DARK, DARK]))
+                    .toStrictEqual([LIGHT, LIGHT]);
+
+                sinon.assert.notCalled(lightFactory);
+            });
+
+            it('array with factory', () => {
+                expect(mapper.arrayMapPartialToLight([DARK, DARK], true))
+                    .toStrictEqual([LIGHT, LIGHT]);
+
+                sinon.assert.calledTwice(lightFactory);
+                sinon.assert.alwaysCalledWith(lightFactory, LIGHT);
             });
         });
     });
