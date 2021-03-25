@@ -1,6 +1,6 @@
 export class Mapper<TLight = any, TDark = any> {
-    private lightFactory?: Mapper.Factory<TLight>;
-    private darkFactory?: Mapper.Factory<TDark>;
+    private lightFactory?: Mapper.Factory<TLight, TDark>;
+    private darkFactory?: Mapper.Factory<TDark, TLight>;
     private nameTransformer?: Mapper.NameTransformer<TDark>;
     private fieldMap: Map<keyof TLight, keyof TDark> = new Map();
     private reverseFieldMap: Map<keyof TDark, keyof TLight> = new Map();
@@ -14,14 +14,14 @@ export class Mapper<TLight = any, TDark = any> {
     /**
      * Tells mapper to use factory to produce final result at the end of mapping process.
      */
-    useFactory(factory: Mapper.Factory<TLight>): this {
+    useFactory(factory: Mapper.Factory<TLight, TDark>): this {
         this.lightFactory = factory;
         return this;
     }
 
     useLightFactory = this.useFactory.bind(this);
 
-    useDarkFactory(factory: Mapper.Factory<TDark>): this {
+    useDarkFactory(factory: Mapper.Factory<TDark, TLight>): this {
         this.darkFactory = factory;
         return this;
     }
@@ -75,7 +75,7 @@ export class Mapper<TLight = any, TDark = any> {
         for (const [lightName, darkName] of this.fieldMap) {
             data[darkName] = this.transformValueFromLight(lightName, light[lightName]);
         }
-        return this.darkFactory ? this.darkFactory(data) : data;
+        return this.darkFactory ? this.darkFactory(data, light) : data;
     }
 
     mapPartialToDark(light: Partial<TLight>, useFactory: boolean = false): Partial<TDark> {
@@ -86,7 +86,7 @@ export class Mapper<TLight = any, TDark = any> {
             }
         }
         if (useFactory && this.darkFactory) {
-            return this.darkFactory(data);
+            return this.darkFactory(data, light);
         }
         return data;
     }
@@ -123,7 +123,7 @@ export class Mapper<TLight = any, TDark = any> {
             }
         }
         if (useFactory && this.lightFactory) {
-            return this.lightFactory(data);
+            return this.lightFactory(data, dark);
         }
         return data;
     }
@@ -136,7 +136,7 @@ export class Mapper<TLight = any, TDark = any> {
         for (const [lightName, darkName] of this.fieldMap) {
             data[lightName] = this.transformValueFromDark(darkName, dark[darkName]);
         }
-        return this.lightFactory ? this.lightFactory(data) : data;
+        return this.lightFactory ? this.lightFactory(data, dark) : data;
     }
 
     arrayMapToLight(values: TDark[]): TLight[] {
@@ -159,7 +159,7 @@ export class Mapper<TLight = any, TDark = any> {
 }
 
 export namespace Mapper {
-    export type Factory<T> = (data: any) => T;
+    export type Factory<T, TOriginal> = (data: any, originalObject: TOriginal | Partial<TOriginal>) => T;
 
     export type NameTransformer<TDark> = (name: string) => keyof TDark;
 

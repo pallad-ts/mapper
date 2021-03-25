@@ -21,8 +21,11 @@ const DATA = {
 
 describe('Mapper', () => {
     it('using light factory', () => {
+        const factory = sinon.stub()
+            .callsFake(x => new Example(x));
+
         const mapper = Mapper.create<Example>()
-            .useFactory(x => new Example(x))
+            .useFactory(factory)
             .registerMapping('firstName')
             .registerMapping('lastName')
             .registerMapping('avatar');
@@ -30,18 +33,23 @@ describe('Mapper', () => {
         const result = mapper.mapToLight(DATA);
         expect(result)
             .toStrictEqual(new Example(DATA));
+        sinon.assert.calledWith(factory, sinon.match.any, DATA);
     });
 
     it('using dark factory', () => {
+        const factory = sinon.stub()
+            .callsFake(x => new Example(x));
+
         const mapper = Mapper.create()
             .registerMapping('firstName')
             .registerMapping('lastName')
             .registerMapping('avatar')
-            .useDarkFactory(x => new Example(x));
+            .useDarkFactory(factory);
 
         const result = mapper.mapToDark(DATA);
         expect(result)
             .toStrictEqual(new Example(DATA));
+        sinon.assert.calledWith(factory, sinon.match.any, DATA);
     });
 
     describe('registering mapping', () => {
