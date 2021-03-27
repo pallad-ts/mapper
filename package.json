@@ -27,7 +27,7 @@
   },
   "homepage": "https://github.com/pallad-ts/mapper#readme",
   "devDependencies": {
-    "@pallad/scripts": "^1.2.4",
+    "@pallad/scripts": "^2.0.0-alpha.4",
     "@types/jest": "^24.9.1",
     "@types/sinon": "^7.5.2",
     "sinon": "^7.5.0",
