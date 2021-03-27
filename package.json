@@ -1,6 +1,6 @@
 {
   "name": "@pallad/mapper",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Simple object mapper to convert object one of type to another",
   "main": "compiled/index.js",
   "types": "compiled/index.d.ts",
