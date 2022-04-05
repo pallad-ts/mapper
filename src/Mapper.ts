@@ -6,6 +6,7 @@ export class Mapper<TLight = any, TDark = any> {
 	private reverseFieldMap: Map<keyof TDark, keyof TLight> = new Map();
 	private toLightTransformers: Map<keyof TLight, Mapper.Transformer<any, any>> = new Map();
 	private toDarkTransformers: Map<keyof TDark, Mapper.Transformer<any, any>> = new Map();
+	private partialMappings: Array<Mapper.PartialMapping<TLight, TDark>> = [];
 
 	static create<TLight = any, TDark = any>() {
 		return new Mapper<TLight, TDark>();
@@ -60,6 +61,11 @@ export class Mapper<TLight = any, TDark = any> {
 		return this;
 	}
 
+	usePartialMapping(mapping: Mapper.PartialMapping<TLight, TDark>): this {
+		this.partialMappings.push(mapping);
+		return this;
+	}
+
 	private getDarkName(lightName: keyof TLight): keyof TDark {
 		if (typeof lightName === 'string') {
 			return this.nameTransformer ? this.nameTransformer(lightName) : lightName as any;
@@ -71,18 +77,28 @@ export class Mapper<TLight = any, TDark = any> {
 	 * Maps object from light side to dark side
 	 */
 	mapToDark(light: TLight): TDark {
-		const data: any = {};
+		let data: any = {};
 		for (const [lightName, darkName] of this.fieldMap) {
 			data[darkName] = this.transformValueFromLight(lightName, light[lightName]);
+		}
+		for (const {toDark} of this.partialMappings) {
+			if (toDark) {
+				data = toDark(light);
+			}
 		}
 		return this.darkFactory ? this.darkFactory(data, light) : data;
 	}
 
 	mapPartialToDark(light: Partial<TLight>, useFactory: boolean = false): Partial<TDark> {
-		const data: any = {};
+		let data: any = {};
 		for (const [lightName, darkName] of this.fieldMap) {
 			if (lightName in light) {
 				data[darkName] = this.transformValueFromLight(lightName, light[lightName]);
+			}
+		}
+		for (const {toDark} of this.partialMappings) {
+			if (toDark) {
+				data = toDark(light);
 			}
 		}
 		if (useFactory && this.darkFactory) {
@@ -116,10 +132,15 @@ export class Mapper<TLight = any, TDark = any> {
 	}
 
 	mapPartialToLight(dark: Partial<TDark>, useFactory: boolean = false): Partial<TLight> {
-		const data: any = {};
+		let data: any = {};
 		for (const [lightName, darkName] of this.fieldMap) {
 			if (darkName in dark) {
 				data[lightName] = this.transformValueFromDark(darkName, dark[darkName]);
+			}
+		}
+		for (const {toLight} of this.partialMappings) {
+			if (toLight) {
+				data = toLight(dark);
 			}
 		}
 		if (useFactory && this.lightFactory) {
@@ -132,9 +153,14 @@ export class Mapper<TLight = any, TDark = any> {
 	 * Maps object from dark to light side
 	 */
 	mapToLight(dark: TDark): TLight {
-		const data: any = {};
+		let data: any = {};
 		for (const [lightName, darkName] of this.fieldMap) {
 			data[lightName] = this.transformValueFromDark(darkName, dark[darkName]);
+		}
+		for (const {toLight} of this.partialMappings) {
+			if (toLight) {
+				data = toLight(dark);
+			}
 		}
 		return this.lightFactory ? this.lightFactory(data, dark) : data;
 	}
@@ -164,4 +190,9 @@ export namespace Mapper {
 	export type NameTransformer<TDark> = (name: string) => keyof TDark;
 
 	export type Transformer<TA, TB> = (value: TA) => TB;
+
+	export interface PartialMapping<TLight, TDark> {
+		toDark?: (value: Partial<TLight>) => Partial<TDark>;
+		toLight?: (value: Partial<TDark>) => Partial<TLight>;
+	}
 }

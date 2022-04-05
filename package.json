@@ -1,6 +1,6 @@
 {
   "name": "@pallad/mapper",
-  "version": "1.2.1",
+  "version": "1.3.0",
   "description": "Simple object mapper to convert object one of type to another",
   "main": "compiled/index.js",
   "types": "compiled/index.d.ts",
@@ -30,10 +30,8 @@
     "tslib": "*"
   },
   "devDependencies": {
-    "@pallad/scripts": "^2.0.0-alpha.4",
-    "@types/jest": "^24.9.1",
-    "@types/sinon": "^9",
-    "sinon": "^10",
+    "@pallad/scripts": "^2",
+    "sinon": "^9",
     "snake-case": "^3.0.4"
   }
 }
