@@ -83,7 +83,7 @@ export class Mapper<TLight = any, TDark = any> {
 		}
 		for (const {toDark} of this.partialMappings) {
 			if (toDark) {
-				data = toDark(light);
+				data = toDark(light, data);
 			}
 		}
 		return this.darkFactory ? this.darkFactory(data, light) : data;
@@ -98,7 +98,7 @@ export class Mapper<TLight = any, TDark = any> {
 		}
 		for (const {toDark} of this.partialMappings) {
 			if (toDark) {
-				data = toDark(light);
+				data = toDark(light, data);
 			}
 		}
 		if (useFactory && this.darkFactory) {
@@ -140,7 +140,7 @@ export class Mapper<TLight = any, TDark = any> {
 		}
 		for (const {toLight} of this.partialMappings) {
 			if (toLight) {
-				data = toLight(dark);
+				data = toLight(dark, data);
 			}
 		}
 		if (useFactory && this.lightFactory) {
@@ -159,7 +159,7 @@ export class Mapper<TLight = any, TDark = any> {
 		}
 		for (const {toLight} of this.partialMappings) {
 			if (toLight) {
-				data = toLight(dark);
+				data = toLight(dark, data);
 			}
 		}
 		return this.lightFactory ? this.lightFactory(data, dark) : data;
@@ -192,7 +192,7 @@ export namespace Mapper {
 	export type Transformer<TA, TB> = (value: TA) => TB;
 
 	export interface PartialMapping<TLight, TDark> {
-		toDark?: (value: Partial<TLight>) => Partial<TDark>;
-		toLight?: (value: Partial<TDark>) => Partial<TLight>;
+		toDark?: (value: Partial<TLight>, currentDark: Partial<TDark>) => Partial<TDark>;
+		toLight?: (value: Partial<TDark>, currentLight: Partial<TLight>) => Partial<TLight>;
 	}
 }
